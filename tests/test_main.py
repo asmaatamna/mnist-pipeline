@@ -1,10 +1,13 @@
 from fastapi.testclient import TestClient
 from app.main import app
 from PIL import Image
+import pytest
 import io
+import os
 
 client = TestClient(app)
 
+@pytest.mark.skipif(not os.path.exists("model/model.pth"), reason="Trained model not available")
 def test_predict_endpoint():
     # Create a dummy 28x28 grayscale image
     image = Image.new("L", (28, 28), color=255)
