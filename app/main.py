@@ -11,6 +11,7 @@ app = FastAPI()
 
 model = None  # Global variable for lazy loading
 
+
 @app.on_event("startup")
 def load_model():
     global model
@@ -21,13 +22,16 @@ def load_model():
         model.eval()
     else:
         print("Warning: model.pth not found. /predict will not work.")
+        print("Model content: ", model)
+
 
 # Preprocessing
 transform = transforms.Compose([
-    transforms.Grayscale(),     # In case input is RGB
+    transforms.Grayscale(),  # In case input is RGB
     transforms.Resize((28, 28)),
     transforms.ToTensor()
 ])
+
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
