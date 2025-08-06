@@ -6,23 +6,29 @@ import torchvision.transforms as transforms
 from model.train_model import SimpleNN
 import io
 import os
+import gdown
 
 app = FastAPI()
 
-model = None  # Global variable for lazy loading
+MODEL_PATH = "model/model.pth"
+GOOGLE_DRIVE_URL = "https://drive.google.com/uc?id=1GiTEqFEY_pfVvasgBEslJ6vB_gSDeQWv"
+
+model = None
 
 
+# Load model
 @app.on_event("startup")
-def load_model():
+def download_model():
+    if not os.path.exists(MODEL_PATH):
+        print("Downloading model...")
+        gdown.download(GOOGLE_DRIVE_URL, MODEL_PATH, quiet=False)
+    else:
+        print("Model already present.")
+
     global model
     model = SimpleNN()
-    model_path = "model/model.pth"
-    if os.path.exists(model_path):
-        model.load_state_dict(torch.load(model_path, map_location="cpu"))
-        model.eval()
-    else:
-        print("Warning: model.pth not found. /predict will not work.")
-        print("Model content: ", model)
+    model.load_state_dict(torch.load(MODEL_PATH, map_location="cpu"))
+    model.eval()
 
 
 # Preprocessing
@@ -35,9 +41,6 @@ transform = transforms.Compose([
 
 @app.post("/predict")
 async def predict(file: UploadFile = File(...)):
-    if model is None:
-        return {"error": "Model not loaded."}
-
     image_bytes = await file.read()
     image = Image.open(io.BytesIO(image_bytes)).convert("L")
     image = transform(image).unsqueeze(0)  # Add batch dimension

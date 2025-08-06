@@ -1,9 +1,8 @@
-# File: test_model.py
-
 import torch
 from model.train_model import SimpleNN
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
+
 
 def test_model_forward_shape():
     model = SimpleNN()
