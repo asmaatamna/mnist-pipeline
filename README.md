@@ -19,4 +19,4 @@ pip install -r requirements.txt
 python model/train_model.py
 
 # Start the FastAPI server
-uvicorn app.api:app --reload
+uvicorn app.main:app --reload
